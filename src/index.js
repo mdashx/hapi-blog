@@ -39,11 +39,7 @@ const init = async () => {
       path: '/post',
       handler: (request, h) => {
         function addPost(newPost) {
-          return datastore.insert(request.payload).then((newDoc) => {
-            return {
-              message: `Created new post - ${newDoc.title} | ID: ${newDoc._id}`,
-            };
-          });
+          return datastore.insert(request.payload).then((newDoc) => newDoc);
         }
 
         if (request.payload._id) {
@@ -77,6 +73,19 @@ const init = async () => {
       handler: (request, h) => {
         return datastore
           .findOne({ _id: request.params.postId })
+          .then((doc) => doc);
+      },
+    },
+    {
+      method: 'PUT',
+      path: '/post/{postId}',
+      handler: (request, h) => {
+        return datastore
+          .update(
+            { _id: request.params.postId },
+            { $set: request.payload },
+            { returnUpdatedDocs: true, multi: false }
+          )
           .then((doc) => doc);
       },
     },

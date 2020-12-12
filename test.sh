@@ -34,6 +34,13 @@ echo "5. Get post by ID"
 curl -XGET 'http://localhost:3000/post/id1' && echo
 
 echo
+echo "5. Update post"
+
+curl -XPUT -H "Content-type: application/json" -d '{
+    "title": "A new title"
+}' 'http://localhost:3000/post/id1' && echo
+
+echo
 echo "================================================================================"
 
 
