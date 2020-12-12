@@ -24,20 +24,38 @@ curl -XPOST -H "Content-type: application/json" -d '{
 }' 'http://localhost:3000/post' && echo
 
 echo
-echo "4. List all of the posts"
+echo "4. New post with optional payload param encrypt set to true"
+
+curl -XPOST -H "Content-type: application/json" -d '{
+  "title": "Encrypted blog post",
+  "content": "A secret blog post",
+  "encrypt": true
+}' 'http://localhost:3000/post' && echo
+
+
+echo
+echo "5. List all of the posts"
 
 curl -XGET 'http://localhost:3000/post' && echo
 
 echo
-echo "5. Get post by ID"
+echo "6. Get post by ID"
 
 curl -XGET 'http://localhost:3000/post/id1' && echo
 
 echo
-echo "5. Update post"
+echo "7. Update post title"
 
 curl -XPUT -H "Content-type: application/json" -d '{
     "title": "A new title"
+}' 'http://localhost:3000/post/id1' && echo
+
+echo
+echo "7. Update post with title and encryption"
+
+curl -XPUT -H "Content-type: application/json" -d '{
+   "title": "Now I am secret",
+    "encrypt": true
 }' 'http://localhost:3000/post/id1' && echo
 
 echo

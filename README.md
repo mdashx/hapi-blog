@@ -6,12 +6,12 @@ Version 1
 
 - Create post, list all posts, get post by ID
 
+Version 2
+
+- Update post, option to encrypt post with ROT13
 
 ## TODO
 
-Version 2
-
-- Update post, option to encrypt post with Rot13
 
 Version 3
 

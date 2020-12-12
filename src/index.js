@@ -7,6 +7,13 @@ const Joi = require('@hapi/joi');
 const Datastore = require('nedb-promises');
 let datastore = Datastore.create('./hapi-blog.db');
 
+// https://stackoverflow.com/a/61222391/73067
+function rot13(message) {
+  var a = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  var b = 'nopqrstuvwxyzabcdefghijklmNOPQRSTUVWXYZABCDEFGHIJKLM';
+  return message.replace(/[a-z]/gi, (c) => b[a.indexOf(c)]);
+}
+
 const init = async () => {
   const server = Hapi.server({
     port: 3000,
@@ -14,6 +21,11 @@ const init = async () => {
     router: {
       stripTrailingSlash: true,
     },
+  });
+
+  server.method({
+    name: 'encrypt',
+    method: rot13,
   });
 
   server.route([
@@ -39,6 +51,9 @@ const init = async () => {
       path: '/post',
       handler: (request, h) => {
         function addPost(newPost) {
+          if (newPost.encrypt) {
+            newPost.content = server.methods.encrypt(newPost.content);
+          }
           return datastore.insert(request.payload).then((newDoc) => newDoc);
         }
 
@@ -63,6 +78,7 @@ const init = async () => {
             title: Joi.string().min(1).max(200),
             content: Joi.string().min(1),
             _id: Joi.string().optional(),
+            encrypt: Joi.boolean().optional(),
           }),
         },
       },
@@ -80,13 +96,43 @@ const init = async () => {
       method: 'PUT',
       path: '/post/{postId}',
       handler: (request, h) => {
-        return datastore
-          .update(
-            { _id: request.params.postId },
-            { $set: request.payload },
-            { returnUpdatedDocs: true, multi: false }
-          )
-          .then((doc) => doc);
+        function updatePost(postToUpdate) {
+          return datastore
+            .update(
+              { _id: request.params.postId },
+              { $set: postToUpdate },
+              { returnUpdatedDocs: true, multi: false }
+            )
+            .then((doc) => doc);
+        }
+        if (request.payload.encrypt) {
+          return datastore
+            .findOne({ _id: request.params.postId })
+            .then((doc) => {
+              if (doc) {
+                request.payload.content = server.methods.encrypt(doc.content);
+                return updatePost(request.payload);
+              } else {
+                const msg = {
+                  statusCode: 400,
+                  message: 'Post not found',
+                };
+                return h.response(msg).code(400);
+              }
+            });
+        }
+
+        return updatePost(request.payload);
+      },
+      options: {
+        validate: {
+          payload: Joi.object({
+            title: Joi.string().min(1).max(200),
+            content: Joi.string().min(1),
+            _id: Joi.string().optional(),
+            encrypt: Joi.boolean().optional(),
+          }),
+        },
       },
     },
   ]);
