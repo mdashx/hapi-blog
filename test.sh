@@ -55,6 +55,7 @@ echo "7. Update post with title and encryption"
 
 curl -XPUT -H "Content-type: application/json" -d '{
    "title": "Now I am secret",
+   "content": "Encrypt this content",
     "encrypt": true
 }' 'http://localhost:3000/post/id1' && echo
 

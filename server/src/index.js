@@ -21,6 +21,9 @@ const init = async () => {
     router: {
       stripTrailingSlash: true,
     },
+    routes: {
+      cors: true,
+    },
   });
 
   server.method({
@@ -96,33 +99,19 @@ const init = async () => {
       method: 'PUT',
       path: '/post/{postId}',
       handler: (request, h) => {
-        function updatePost(postToUpdate) {
-          return datastore
-            .update(
-              { _id: request.params.postId },
-              { $set: postToUpdate },
-              { returnUpdatedDocs: true, multi: false }
-            )
-            .then((doc) => doc);
-        }
         if (request.payload.encrypt) {
-          return datastore
-            .findOne({ _id: request.params.postId })
-            .then((doc) => {
-              if (doc) {
-                request.payload.content = server.methods.encrypt(doc.content);
-                return updatePost(request.payload);
-              } else {
-                const msg = {
-                  statusCode: 400,
-                  message: 'Post not found',
-                };
-                return h.response(msg).code(400);
-              }
-            });
+          request.payload.content = server.methods.encrypt(
+            request.payload.content
+          );
         }
 
-        return updatePost(request.payload);
+        return datastore
+          .update(
+            { _id: request.params.postId },
+            { $set: request.payload },
+            { returnUpdatedDocs: true, multi: false }
+          )
+          .then((doc) => doc);
       },
       options: {
         validate: {
