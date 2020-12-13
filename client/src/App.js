@@ -1,13 +1,7 @@
 import './App.css';
 
 import React from 'react';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link,
-  useParams,
-} from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 
 import Home from './views/Home.js';
 import PostEdit from './views/PostEdit.js';
@@ -34,24 +28,14 @@ export default function BlogEditor() {
           </Route>
 
           <Route path="/post/:id/edit">
-            <EditPost />
+            <PostEdit />
           </Route>
 
           <Route path="/post/:id">
-            <ShowPost />
+            <PostShow />
           </Route>
         </Switch>
       </div>
     </Router>
   );
 }
-
-const ShowPost = () => {
-  let { id } = useParams();
-  return <PostShow id={id} />;
-};
-
-const EditPost = () => {
-  let { id } = useParams();
-  return <PostEdit id={id} />;
-};

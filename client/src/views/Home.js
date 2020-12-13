@@ -1,43 +1,33 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { listAllPosts } from '../apiClient.js';
 
-class Home extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      posts: [],
-    };
-  }
+const Home = (props) => {
+  const [posts, setPosts] = useState([]);
 
-  componentDidMount() {
-    this.getPosts();
-  }
+  useEffect(() => {
+    listAllPosts().then((response) => setPosts(response.data));
+  }, []);
 
-  getPosts() {
-    listAllPosts().then((response) => this.setState({ posts: response.data }));
-  }
-
-  render() {
-    const posts = this.state.posts.map((post) => {
-      return (
-        <li key={post._id}>
-          <Link to={`/post/${post._id}`}>{post.title}</Link>
-        </li>
-      );
-    });
+  const postLinks = posts.map((post) => {
     return (
-      <div>
-        <p>
-          <Link to="/new">
-            <button>Create new post</button>
-          </Link>
-        </p>
-        {posts}
-      </div>
+      <li key={post._id}>
+        <Link to={`/post/${post._id}`}>{post.title}</Link>
+      </li>
     );
-  }
-}
+  });
+
+  return (
+    <div>
+      <p>
+        <Link to="/new">
+          <button>Create new post</button>
+        </Link>
+      </p>
+      {postLinks}
+    </div>
+  );
+};
 
 export default Home;

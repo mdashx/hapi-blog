@@ -1,38 +1,28 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 
 import { getPost } from '../apiClient.js';
 
-class PostShow extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      post: {},
-    };
-  }
+const PostShow = (props) => {
+  let { id } = useParams();
+  const [post, setPost] = useState({});
 
-  render() {
-    return (
-      <div>
-        <Link to={`/post/${this.props.id}/edit`}>
-          <button>Edit post</button>
-        </Link>
+  useEffect(() => {
+    getPost(id).then((response) => {
+      setPost(response.data);
+    });
+  }, [id]);
 
-        <h2>{this.state.post.title}</h2>
-        <div>{this.state.post.content}</div>
-      </div>
-    );
-  }
+  return (
+    <div>
+      <Link to={`/post/${id}/edit`}>
+        <button>Edit post</button>
+      </Link>
 
-  getPost() {
-    getPost(this.props.id).then((response) =>
-      this.setState({ post: response.data })
-    );
-  }
-
-  componentDidMount() {
-    this.getPost();
-  }
-}
+      <h2>{post.title}</h2>
+      <div>{post.content}</div>
+    </div>
+  );
+};
 
 export default PostShow;
